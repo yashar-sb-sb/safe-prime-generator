@@ -12,9 +12,9 @@ public class NativePrimeGenerator {
      public native String nextPrime(String inp);
 
     private static boolean NATIVE_LIBRARY_LOADED = false;
-    private static String lib = "/tmp/libnative.so";
 
     static synchronized void loadNativeLibrary () {
+        String lib = "/tmp/libnative.so";
         if (!NATIVE_LIBRARY_LOADED) {
             InputStream in = NativePrimeGenerator.class.getResourceAsStream ("/libnative.so");
             try {
