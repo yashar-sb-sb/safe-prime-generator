@@ -1,21 +1,37 @@
 package com.github.yasharsbsb;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 
 public class NativePrimeGenerator {
 
     static {
-        String resource = NativePrimeGenerator.class.getResource("/libnative.so").getFile();
-        try {
-            byte[] bytes = Files.readAllBytes((new File(resource)).toPath());
-            Files.write((new File("/tmp/libnative.so")).toPath(), bytes);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.load("/tmp/libnative.so");
+        loadNativeLibrary();
     }
 
      public native String nextPrime(String inp);
+
+    private static boolean NATIVE_LIBRARY_LOADED = false;
+    private static String lib = "/tmp/libnative.so";
+
+    static synchronized void loadNativeLibrary () {
+        if (!NATIVE_LIBRARY_LOADED) {
+            InputStream in = NativePrimeGenerator.class.getResourceAsStream ("/libnative.so");
+            try {
+
+                int read;
+                byte[] bytes = new byte[1024];
+                FileOutputStream outputStream = new FileOutputStream (lib);
+
+                while ((read = in.read (bytes)) != -1) {
+                    outputStream.write (bytes , 0 , read);
+                }
+                outputStream.close ();
+                System.load (lib);
+                NATIVE_LIBRARY_LOADED = true;
+            } catch (Exception e) {
+                System.out.println ("Faile to load file : " + lib);
+            }
+        }
+    }
 }
